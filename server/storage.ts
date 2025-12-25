@@ -1,38 +1,35 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { predictions, type InsertPrediction, type Prediction } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createPrediction(prediction: InsertPrediction): Promise<Prediction>;
+  getPredictions(): Promise<Prediction[]>;
+  getPredictionStats(): Promise<{ total: number; positive: number; negative: number }>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async createPrediction(insertPrediction: InsertPrediction): Promise<Prediction> {
+    const [prediction] = await db
+      .insert(predictions)
+      .values(insertPrediction)
+      .returning();
+    return prediction;
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getPredictions(): Promise<Prediction[]> {
+    return await db.select().from(predictions).orderBy(predictions.createdAt);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getPredictionStats(): Promise<{ total: number; positive: number; negative: number }> {
+    const all = await db.select().from(predictions);
+    const positive = all.filter(p => p.prediction === 1).length;
+    return {
+      total: all.length,
+      positive,
+      negative: all.length - positive
+    };
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
