@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import mlflow
 import mlflow.sklearn
 import os
@@ -30,23 +32,56 @@ def train():
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # Enable MLflow autologging
+    # Set experiment name
     mlflow.set_experiment("Heart Disease Prediction")
-    mlflow.sklearn.autolog()
+    
+    # Enable autologging (captures params, metrics, and model artifacts automatically)
+    # mlflow.sklearn.autolog() 
+    # Note: We are doing manual logging below to demonstrate "how it is done" as requested.
     
     with mlflow.start_run():
-        print("Training model...")
-        clf = RandomForestClassifier(n_estimators=100, random_state=42)
+        print("Starting training run...")
+        
+        # 1. Log Parameters
+        n_estimators = 100
+        max_depth = 5
+        mlflow.log_param("n_estimators", n_estimators)
+        mlflow.log_param("max_depth", max_depth)
+        mlflow.log_param("test_size", 0.2)
+        
+        clf = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
         clf.fit(X_train, y_train)
         
+        # Predict
         y_pred = clf.predict(X_test)
+        
+        # 2. Log Metrics
         accuracy = accuracy_score(y_test, y_pred)
-        
+        mlflow.log_metric("accuracy", accuracy)
         print(f"Model Accuracy: {accuracy}")
-        print(classification_report(y_test, y_pred))
         
-        # Log model
+        # 3. Log Artifacts (Plots)
+        # Generate Confusion Matrix Plot
+        cm = confusion_matrix(y_test, y_pred)
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+        plt.title('Confusion Matrix')
+        plt.ylabel('Actual')
+        plt.xlabel('Predicted')
+        
+        # Save plot locally first
+        os.makedirs("plots", exist_ok=True)
+        plot_path = "plots/confusion_matrix.png"
+        plt.savefig(plot_path)
+        plt.close()
+        
+        # Log the plot artifact to MLflow
+        mlflow.log_artifact(plot_path)
+        
+        # 4. Log Model
         mlflow.sklearn.log_model(clf, "random_forest_model")
+        
+        print("Run complete. Check MLflow UI for details.")
 
 if __name__ == "__main__":
     train()
