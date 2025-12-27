@@ -83,18 +83,34 @@ This generates:
 
 Train the model and log experiments to MLflow:
 ```bash
-mlflow ui  # Start MLflow UI (optional, visit http://localhost:5000)
+# Start MLflow UI in background (optional)
+mlflow ui &  # Visit http://localhost:5000
+
+# Train model with tracking
 python src/train_model.py
 ```
 
 This logs to MLflow:
 - **Parameters**: n_estimators, max_depth, test_size
-- **Metrics**: accuracy, precision, recall
+- **Metrics**: accuracy, precision, recall, F1-score
 - **Artifacts**: Confusion matrix plot, trained model
+- **Model**: Saved as `random_forest_model/` artifact
 
 View experiment results in the MLflow UI.
 
-### 6. Run API Locally
+### 6. Register Model in MLflow Registry
+
+Register the trained model for production serving:
+```bash
+python src/register_model.py
+```
+
+This:
+- Creates a versioned model in MLflow Model Registry
+- Enables model staging (None → Staging → Production → Archived)
+- Provides a stable URI for production deployments
+
+### 7. Run API Locally (with MLflow Model Loading)
 
 Start the FastAPI server:
 ```bash
@@ -102,6 +118,13 @@ uvicorn api.app:app --reload --port 8000
 ```
 
 Visit `http://localhost:8000/docs` for interactive API documentation.
+
+The API automatically loads the trained model from MLflow in this order:
+1. **MLflow Model Registry** (`models:/heart-disease-model/latest`) - Production
+2. **MLflow Runs** (latest experiment) - Development
+3. **Local Pickle** (`models/model.pkl`) - Fallback
+
+Check `/model-info` endpoint to see which model is loaded.
 
 **Example prediction request:**
 ```bash
@@ -129,8 +152,32 @@ Response:
 {
   "prediction": 1,
   "confidence": 0.87,
-  "risk_level": "High"
+  "risk_level": "High",
+  "model_version": "registry-latest"
 }
+```
+
+## MLflow Integration
+
+MLflow is fully integrated for experiment tracking and model serving. See [MLFLOW_INTEGRATION.md](MLFLOW_INTEGRATION.md) for detailed documentation on:
+- Training with MLflow tracking
+- Registering models in MLflow Model Registry
+- Loading models in the API
+- Model versioning and staging
+
+**Quick Start:**
+```bash
+# 1. Train and track
+python src/train_model.py
+
+# 2. View results
+mlflow ui  # http://localhost:5000
+
+# 3. Register model
+python src/register_model.py
+
+# 4. Serve predictions
+uvicorn api.app:app --reload --port 8000
 ```
 
 ## Key Features
