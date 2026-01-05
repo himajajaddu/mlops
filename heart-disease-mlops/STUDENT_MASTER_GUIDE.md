@@ -54,6 +54,15 @@ You need a "home" for your code and a "cloud" to run it.
 You don't "type" your cloud account name into the code. Instead, you "link" your computer or your robot (Jenkins) to your account using **Credentials**.
 
 1.  **On your computer**: You run `aws configure`. It will ask for your **Access Key ID** and **Secret Access Key**. This tells the `kubectl` and `aws` tools exactly which account to send the app to.
+    
+    **How to get your Access Keys:**
+    *   **Visit**: Search for **IAM** in your AWS Console.
+    *   **Click**: Go to **Users** and click on your name (or the Jenkins user you created).
+    *   **Action**: Click the **Security credentials** tab.
+    *   **Create**: Scroll down to **Access keys** and click **Create access key**.
+    *   **Choose**: Select "Command Line Interface (CLI)" and click Next.
+    *   **Save**: **Copy both the Access Key and Secret Access Key immediately!** You will never see the Secret Key again after you leave this page. Download the `.csv` file if you want to be safe.
+
 2.  **In Jenkins**: You add your AWS Keys to the **Credentials Manager**. In the `Jenkinsfile`, we use `credentials('AWS_ACCESS_KEY_ID')`. This tells the robot, "Use the keys I gave you to log into my Amazon account."
 3.  **The Result**: Because your tools are logged in, when you run `kubectl apply`, the command knows exactly which "City Infrastructure" (your AWS account) it belongs to.
 
