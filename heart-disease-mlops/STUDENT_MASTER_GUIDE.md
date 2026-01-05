@@ -50,6 +50,12 @@ You need a "home" for your code and a "cloud" to run it.
 ### ☁️ Phase 6: Cloud Deployment (Task 7)
 **Goal:** Put your app on the real internet.
 
+**How Kubernetes and AWS Work Together:**
+Think of **AWS** as the "City Infrastructure" (the land, electricity, and roads) and **Kubernetes** as the "City Planner."
+*   **AWS (Amazon Web Services)**: Provides the actual physical computers (Servers), networking, and storage.
+*   **EKS (Elastic Kubernetes Service)**: This is a special service by AWS that hosts Kubernetes for you. It handles the "Master Node" (the brain of Kubernetes) so you don't have to manage it.
+*   **Integration**: When you ask Kubernetes for a "Load Balancer" in your `service.yaml`, it automatically reaches out to AWS and says, "Hey, I need a public entrance for this app." AWS then creates a physical **Elastic Load Balancer (ELB)** and connects it to your Kubernetes cluster.
+
 **How Kubernetes and Docker Work Together:**
 Think of **Docker** as the "Building Material" and **Kubernetes** as the "Construction Site Manager."
 *   **Docker** creates the "Shipping Container" (Image) that holds your code, libraries, and settings.
