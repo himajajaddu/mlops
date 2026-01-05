@@ -49,7 +49,19 @@ You need a "home" for your code and a "cloud" to run it.
 
 ### ☁️ Phase 6: Cloud Deployment (Task 7)
 **Goal:** Put your app on the real internet.
-1.  **Kubernetes**: Use the files in the `k8s/` folder (`deployment.yaml` and `service.yaml`).
+
+**How Kubernetes and Docker Work Together:**
+Think of **Docker** as the "Building Material" and **Kubernetes** as the "Construction Site Manager."
+*   **Docker** creates the "Shipping Container" (Image) that holds your code, libraries, and settings.
+*   **Kubernetes** takes those containers and decides which computer (Server) they should run on, restarts them if they crash, and makes sure they can handle lots of visitors.
+
+**The Workflow:**
+1.  **Pack it (Docker)**: You build your app into a Docker Image.
+2.  **Ship it (Registry)**: You upload that image to a storage place (like AWS ECR).
+3.  **Deploy it (Kubernetes)**: You tell Kubernetes (using the files in the `k8s/` folder) to pull that image from the storage and start running it on the cloud.
+
+**Action:**
+1.  **Kubernetes Files**: Use `deployment.yaml` (the instructions for running the app) and `service.yaml` (the instructions for letting people visit the app).
 2.  **Deploy**: Run `kubectl apply -f k8s/`.
 3.  **Result**: Your API is now reachable via a "Load Balancer" (a public URL) that anyone can visit.
 
