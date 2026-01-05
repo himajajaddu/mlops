@@ -60,6 +60,12 @@ Think of **Docker** as the "Building Material" and **Kubernetes** as the "Constr
 2.  **Ship it (Registry)**: You upload that image to a storage place (like AWS ECR).
 3.  **Deploy it (Kubernetes)**: You tell Kubernetes (using the files in the `k8s/` folder) to pull that image from the storage and start running it on the cloud.
 
+**Where is the Public URL configured?**
+The public URL is configured in the **`heart-disease-mlops/k8s/service.yaml`** file. 
+*   Inside this file, you will see `type: LoadBalancer`. 
+*   When you run `kubectl apply -f k8s/`, Kubernetes asks your cloud provider (like AWS) to create a **Load Balancer**. 
+*   Once created, the cloud provider gives you a **Public IP or DNS name** (like `http://a78b...us-east-1.elb.amazonaws.com`). This becomes your public URL.
+
 **Action:**
 1.  **Kubernetes Files**: Use `deployment.yaml` (the instructions for running the app) and `service.yaml` (the instructions for letting people visit the app).
 2.  **Deploy**: Run `kubectl apply -f k8s/`.
