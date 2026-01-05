@@ -61,6 +61,9 @@ In Jenkins, navigate to `Manage Jenkins` -> `Credentials` -> `System` -> `Global
 
 ---
 
+## 🔗 GitHub Automation
+For instructions on how to trigger your pipeline automatically on every commit to GitHub, see [GITHUB_AUTOMATION.md](./GITHUB_AUTOMATION.md).
+
 ## 🚀 Deployment Steps
 
 1. **Push Code:** Commit and push the `Jenkinsfile` and AWS configurations to your repository.
