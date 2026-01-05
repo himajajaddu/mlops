@@ -72,7 +72,9 @@ Think of this as the "Address" of your Lab Notebook.
 **Where do you get it?**
 1.  **Local Development**: You don't need to do anything! MLflow will create a folder called `mlruns` automatically.
 2.  **Cloud Deployment**: 
-    *   Once you set up your MLflow server on AWS (as described in Phase 3), the `MLFLOW_TRACKING_URI` is simply the **Public IP Address** of that server followed by `:5000`.
+    *   You need to set up a small server on AWS to be your "Lab Notebook."
+    *   **Follow this guide**: [MLflow AWS Setup](./MLFLOW_AWS_SETUP.md)
+    *   Once set up, your `MLFLOW_TRACKING_URI` is simply the **Public IP Address** of that server followed by `:5000`.
     *   Example: `http://12.34.56.78:5000`
 
 ---
