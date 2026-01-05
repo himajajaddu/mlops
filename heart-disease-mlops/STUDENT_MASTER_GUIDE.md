@@ -11,6 +11,26 @@ You need a "home" for your code and a "cloud" to run it.
 
 ---
 
+### 📂 Understanding Your Project Structure
+As a student, you might wonder why we have so many folders. Here is the "Big Picture":
+
+*   **`client/`**: This is the **Frontend**. It is the "Face" of your app (the website you see). It uses React and Tailwind to make things look pretty.
+*   **`server/`**: This is the **Backend**. It is the "Brain" of the web app. it handles the database and tells the frontend what to show.
+*   **`shared/`**: This contains code (like data rules) used by **both** the frontend and the backend. It keeps them synchronized.
+*   **`script/`**: These are helper scripts used during development to build or manage the project.
+*   **`heart-disease-mlops/`**: This is the **Core ML Pipeline**. This is where your actual MLOps assignment lives (Python scripts for training, preprocessing, etc.).
+*   **`tests/`**: This is where your **Quality Control** lives. It contains scripts that check if your code is working correctly before it is deployed.
+
+---
+
+### 🧪 Phase 2.5: Automated Testing (New!)
+**Goal:** Make sure your code doesn't break.
+1.  **Test Folder**: Look at the `tests/` folder at the root.
+2.  **Running Tests**: You can run `python -m unittest discover tests` to check your code.
+3.  **CI/CD Integration**: Every time you push to GitHub, our "Main Pipeline" (see `.github/workflows/main.yml`) will now automatically run these tests. If the tests fail, the deployment stops. This is called a **"Failing Fast"** strategy.
+
+---
+
 ### 📊 Phase 2: Data & Analysis (Task 1)
 **Goal:** Get the heart data and understand it.
 1.  **Download Data**: Run `python heart-disease-mlops/data/download_dataset.py`. This grabs the "Heart Disease UCI Dataset".
