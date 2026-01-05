@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-1' // Update with your region
+        ECR_REPOSITORY = 'heart-disease-api'
+        AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Lint & Test') {
+            steps {
+                sh 'pip install -r heart-disease-mlops/requirements.txt'
+                sh 'flake8 heart-disease-mlops/src/'
+                sh 'pytest heart-disease-mlops/tests/'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                    sh "docker build -t ${ECR_REPOSITORY}:latest heart-disease-mlops/"
+                    sh "docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest"
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest"
+            }
+        }
+
+        stage('Deploy to EKS/EC2') {
+            steps {
+                // Example for EKS deployment
+                // sh "aws eks update-kubeconfig --region ${AWS_REGION} --name heart-disease-cluster"
+                // sh "kubectl apply -f heart-disease-mlops/k8s/"
+                
+                // Example for EC2 (SSH + Docker Run)
+                // sshagent(['ec2-ssh-key']) {
+                //     sh "ssh -o StrictHostKeyChecking=no ec2-user@${EC2_PUBLIC_IP} 'docker pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest && docker run -d -p 8000:8000 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest'"
+                // }
+                echo 'Deployment successful'
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
