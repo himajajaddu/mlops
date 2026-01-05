@@ -61,7 +61,16 @@ Usually, you run Jenkins on a small AWS server (EC2).
 
 ---
 
-### 🔗 Phase 4: Connecting GitHub to Jenkins (Automation)
+### 📈 Part 4: MLflow (The Brain Tracker)
+MLflow is like a "Lab Notebook." It records exactly how you trained your model and saves the best version.
+
+1.  **Tracking**: When Jenkins runs your code, it tells MLflow: "I'm training a model now."
+2.  **Model Registry**: After training, MLflow "registers" the model. This is like putting a "Approved" stamp on the best version.
+3.  **Serving**: When your app starts on AWS, it asks MLflow: "Give me the latest approved model." This way, you don't have to manually move files around!
+
+---
+
+### 🔗 Phase 5: Connecting GitHub to Jenkins (Automation)
 
 This is the "magic" part where things happen automatically.
 
@@ -74,7 +83,7 @@ This is the "magic" part where things happen automatically.
 
 ---
 
-### 🚀 Phase 5: The "Big Moment" (Deployment)
+### 🚀 Phase 6: The "Big Moment" (Deployment)
 
 1.  **Make a change**: Open a file in your code and change a small word in a comment.
 2.  **Save/Commit**: Save the change and "Push" it to GitHub.
