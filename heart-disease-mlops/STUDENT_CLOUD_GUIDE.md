@@ -64,9 +64,16 @@ Usually, you run Jenkins on a small AWS server (EC2).
 ### 📈 Part 4: MLflow (The Brain Tracker)
 MLflow is like a "Lab Notebook." It records exactly how you trained your model and saves the best version.
 
-1.  **Tracking**: When Jenkins runs your code, it tells MLflow: "I'm training a model now."
-2.  **Model Registry**: After training, MLflow "registers" the model. This is like putting a "Approved" stamp on the best version.
-3.  **Serving**: When your app starts on AWS, it asks MLflow: "Give me the latest approved model." This way, you don't have to manually move files around!
+**What is `MLFLOW_TRACKING_URI`?**
+Think of this as the "Address" of your Lab Notebook.
+*   **If you are working locally**: It is just a folder on your computer (like `mlruns`).
+*   **If you are in the Cloud**: It is a web URL (like `http://3.85.xx.xx:5000`) where your Jenkins robot sends the training data.
+
+**Where do you get it?**
+1.  **Local Development**: You don't need to do anything! MLflow will create a folder called `mlruns` automatically.
+2.  **Cloud Deployment**: 
+    *   Once you set up your MLflow server on AWS (as described in Phase 3), the `MLFLOW_TRACKING_URI` is simply the **Public IP Address** of that server followed by `:5000`.
+    *   Example: `http://12.34.56.78:5000`
 
 ---
 
