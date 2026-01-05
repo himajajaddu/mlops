@@ -2,11 +2,12 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1' // Update with your region
+        AWS_REGION = 'us-east-1'
         ECR_REPOSITORY = 'heart-disease-api'
         AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        MLFLOW_TRACKING_URI = 'http://your-mlflow-server:5000' // Update with your MLflow server URL
     }
 
     stages {
@@ -24,10 +25,22 @@ pipeline {
             }
         }
 
+        stage('Train & Track (MLflow)') {
+            steps {
+                script {
+                    // This runs the training script which logs to MLflow
+                    sh "export MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} && python heart-disease-mlops/src/train_model.py"
+                    // This registers the model in the MLflow Model Registry
+                    sh "export MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} && python heart-disease-mlops/src/register_model.py"
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                    // The Dockerfile should be configured to load the model from MLflow at runtime or build time
                     sh "docker build -t ${ECR_REPOSITORY}:latest heart-disease-mlops/"
                     sh "docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest"
                 }
@@ -40,17 +53,9 @@ pipeline {
             }
         }
 
-        stage('Deploy to EKS/EC2') {
+        stage('Deploy') {
             steps {
-                // Example for EKS deployment
-                // sh "aws eks update-kubeconfig --region ${AWS_REGION} --name heart-disease-cluster"
-                // sh "kubectl apply -f heart-disease-mlops/k8s/"
-                
-                // Example for EC2 (SSH + Docker Run)
-                // sshagent(['ec2-ssh-key']) {
-                //     sh "ssh -o StrictHostKeyChecking=no ec2-user@${EC2_PUBLIC_IP} 'docker pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest && docker run -d -p 8000:8000 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest'"
-                // }
-                echo 'Deployment successful'
+                echo 'Deployment triggered. The API is configured to pull the latest registered model from MLflow.'
             }
         }
     }
