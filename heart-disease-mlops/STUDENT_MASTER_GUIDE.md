@@ -50,6 +50,13 @@ You need a "home" for your code and a "cloud" to run it.
 ### ☁️ Phase 6: Cloud Deployment (Task 7)
 **Goal:** Put your app on the real internet.
 
+**Where do I mention which Cloud Account to use?**
+You don't "type" your cloud account name into the code. Instead, you "link" your computer or your robot (Jenkins) to your account using **Credentials**.
+
+1.  **On your computer**: You run `aws configure`. It will ask for your **Access Key ID** and **Secret Access Key**. This tells the `kubectl` and `aws` tools exactly which account to send the app to.
+2.  **In Jenkins**: You add your AWS Keys to the **Credentials Manager**. In the `Jenkinsfile`, we use `credentials('AWS_ACCESS_KEY_ID')`. This tells the robot, "Use the keys I gave you to log into my Amazon account."
+3.  **The Result**: Because your tools are logged in, when you run `kubectl apply`, the command knows exactly which "City Infrastructure" (your AWS account) it belongs to.
+
 **How Kubernetes and AWS Work Together:**
 Think of **AWS** as the "City Infrastructure" (the land, electricity, and roads) and **Kubernetes** as the "City Planner."
 *   **AWS (Amazon Web Services)**: Provides the actual physical computers (Servers), networking, and storage.
