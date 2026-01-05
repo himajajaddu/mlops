@@ -53,9 +53,15 @@ You need a "home" for your code and a "cloud" to run it.
 **Where do I mention which Cloud Account to use?**
 You don't "type" your cloud account name into the code. Instead, you "link" your computer or your robot (Jenkins) to your account using **Credentials**.
 
-1.  **On your computer**: You run `aws configure`. It will ask for your **Access Key ID** and **Secret Access Key**. This tells the `kubectl` and `aws` tools exactly which account to send the app to.
+1.  **On your MacBook**: You need to add your AWS keys to your computer's local credential manager.
+    *   **Step 1**: Open the **Terminal** app (Command + Space, type "Terminal").
+    *   **Step 2**: Type `aws configure` and press Enter. (If it says "command not found," you first need to install the [AWS CLI](https://aws.amazon.com/cli/)).
+    *   **Step 3**: When prompted, paste your **Access Key ID** and press Enter.
+    *   **Step 4**: Paste your **Secret Access Key** and press Enter.
+    *   **Step 5**: For "Default region name," type `us-east-1` (or your preferred region) and press Enter.
+    *   **Step 6**: For "Default output format," just press Enter.
     
-    **How to get your Access Keys:**
+    **How to get your Access Keys from AWS:**
     *   **Visit**: Search for **IAM** in your AWS Console.
     *   **Click**: Go to **Users** and click on your name (or the Jenkins user you created).
     *   **Action**: Click the **Security credentials** tab.
@@ -63,7 +69,14 @@ You don't "type" your cloud account name into the code. Instead, you "link" your
     *   **Choose**: Select "Command Line Interface (CLI)" and click Next.
     *   **Save**: **Copy both the Access Key and Secret Access Key immediately!** You will never see the Secret Key again after you leave this page. Download the `.csv` file if you want to be safe.
 
-2.  **In Jenkins**: You add your AWS Keys to the **Credentials Manager**. In the `Jenkinsfile`, we use `credentials('AWS_ACCESS_KEY_ID')`. This tells the robot, "Use the keys I gave you to log into my Amazon account."
+2.  **In Jenkins (The Robot)**:
+    *   **Step 1**: Open your Jenkins dashboard in the browser.
+    *   **Step 2**: Click **Manage Jenkins** -> **Credentials** -> **System** -> **Global credentials**.
+    *   **Step 3**: Click **Add Credentials**.
+    *   **Step 4**: Select **Secret text** as the "Kind".
+    *   **Step 5**: In "Secret", paste your **Access Key ID**. In "ID", type `AWS_ACCESS_KEY_ID`.
+    *   **Step 6**: Repeat for the **Secret Access Key** (set ID to `AWS_SECRET_ACCESS_KEY`).
+    *   **Step 7**: Now your `Jenkinsfile` can use these keys securely by calling `credentials('AWS_ACCESS_KEY_ID')`.
 3.  **The Result**: Because your tools are logged in, when you run `kubectl apply`, the command knows exactly which "City Infrastructure" (your AWS account) it belongs to.
 
 **How Kubernetes and AWS Work Together:**
