@@ -37,7 +37,67 @@ We use Python to train models and MLflow to pick the best one.
 
 ---
 
-### 🔄 Phase 3: Local Jenkins Pipeline (Task 5)
+### ☁️ Phase 4: AWS Setup (The Beginner's Guide)
+**Goal:** Set up your cloud "Warehouse" (ECR) and "Server" (ECS) from scratch.
+
+#### 1. Create your AWS Account & User
+*   **Sign Up**: Go to [aws.amazon.com](https://aws.amazon.com) and create a "Root" account.
+*   **Create a User (IAM)**: 
+    1. Search for **IAM** in the top search bar.
+    2. Click **Users** on the left, then **Create user**.
+    3. Name it `jenkins-user`.
+    4. Click **Next**, then select **Attach policies directly**.
+    5. Search and check these boxes: `AmazonEC2ContainerRegistryFullAccess`, `AmazonECS_FullAccess`.
+    6. Click **Next**, then **Create user**.
+
+#### 2. Get your "Keys" (Access Credentials)
+1. Click on your new `jenkins-user`.
+2. Go to the **Security credentials** tab.
+3. Scroll to **Access keys** and click **Create access key**.
+4. Choose **Command Line Interface (CLI)**.
+5. **IMPORTANT**: Copy the **Access Key ID** and **Secret Access Key**. Save them in a notepad; the Secret key disappears forever once you leave this page!
+
+#### 3. Setup the "Storage" (AWS ECR)
+*Think of this as a private folder where your Docker images live.*
+1. Search for **ECR** (Elastic Container Registry).
+2. Click **Create repository**.
+3. Name it `heart-disease-api`.
+4. Keep everything else default and click **Create**.
+5. Copy the **URI** (looks like `123456789.dkr.ecr...`). You'll need this later.
+
+#### 4. Setup the "Runner" (AWS ECS)
+*Think of this as the actual computer that runs your app.*
+1. Search for **ECS** (Elastic Container Service).
+2. **Create Cluster**:
+   - Click **Clusters** -> **Create Cluster**.
+   - Name it `heart-disease-cluster`.
+   - Select **AWS Fargate (serverless)** (it's the easiest).
+   - Click **Create**.
+3. **Create Task Definition**:
+   - Click **Task Definitions** -> **Create new Task Definition with JSON**.
+   - Paste the following (replace `<IMAGE_URI>` with your ECR URI from Step 3):
+     ```json
+     {
+       "family": "heart-disease-task",
+       "containerDefinitions": [{
+         "name": "api-container",
+         "image": "<IMAGE_URI>",
+         "portMappings": [{ "containerPort": 8000 }]
+       }],
+       "cpu": "256", "memory": "512",
+       "networkMode": "awsvpc",
+       "requiresCompatibilities": ["FARGATE"]
+     }
+     ```
+4. **Create Service**:
+   - Inside your `heart-disease-cluster`, go to the **Services** tab and click **Create**.
+   - Select **Deployment configuration** -> **Family**: `heart-disease-task`.
+   - Service name: `heart-disease-service`.
+   - Under **Networking**, ensure "Public IP" is **Turned ON**.
+
+---
+
+### 🔄 Phase 5: Local Jenkins Pipeline (Task 5)
 **Goal:** Make your MacBook automatically build and push whenever you save code.
 
 1.  **Connect GitHub to Local Jenkins**:
