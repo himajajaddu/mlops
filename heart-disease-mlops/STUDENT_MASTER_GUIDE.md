@@ -71,6 +71,16 @@ We use Python to train models and MLflow to pick the best one.
 #### 4. Setup the "Runner" (AWS ECS)
 *Think of this as the actual computer that runs your app.*
 
+**⚠️ Fix for "Execution Role" Requirement:**
+AWS Fargate needs a special "Execution Role" to pull your image from ECR.
+1. Search for **IAM** in the top search bar.
+2. Click **Roles** -> **Create role**.
+3. Select **AWS service** and choose **Elastic Container Service**.
+4. Select **Elastic Container Service Task** as the use case. Click **Next**.
+5. Search for and check: `AmazonECSTaskExecutionRolePolicy`. Click **Next**.
+6. Name it `ecsTaskExecutionRole`. Click **Create role**.
+7. Copy the **ARN** (looks like `arn:aws:iam::123456789:role/ecsTaskExecutionRole`). You will need this in the next step.
+
 **⚠️ Note on "Service Linked Role" Error:**
 If you see an error saying `Service role name AWSServiceRoleForECS has been taken`, it means **the permissions are already set up correctly!** You don't need to do anything else for this step.
 
@@ -85,10 +95,11 @@ Just go back to the AWS console and proceed with creating your cluster. It will 
    - Click **Create**.
 3. **Create Task Definition**:
    - Click **Task Definitions** -> **Create new Task Definition with JSON**.
-   - Paste the following (replace `<IMAGE_URI>` with your ECR URI from Step 3):
+   - Paste the following (replace `<IMAGE_URI>` with your ECR URI and `<EXECUTION_ROLE_ARN>` with your Role ARN):
      ```json
      {
        "family": "heart-disease-task",
+       "executionRoleArn": "<EXECUTION_ROLE_ARN>",
        "containerDefinitions": [{
          "name": "api-container",
          "image": "<IMAGE_URI>",
