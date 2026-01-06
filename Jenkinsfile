@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        # Optional: MLflow URI if needed
+        MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -33,19 +38,19 @@ pipeline {
             steps {
                 sh '''
                 echo "Building Docker image..."
-                # Disable BuildKit for Jenkins (avoids credential issues)
                 export DOCKER_BUILDKIT=0
-                # Build context is heart-disease-mlops/ so all paths in Dockerfile exist
                 docker build \
-                -f heart-disease-mlops/Dockerfile \
-                -t heart-disease-api \
-                heart-disease-mlops/
+                  -f heart-disease-mlops/Dockerfile \
+                  -t heart-disease-api \
+                  heart-disease-mlops/
                 '''
             }
         }
+    }
 
     post {
         always {
+            echo "Cleaning workspace..."
             cleanWs()
         }
     }
