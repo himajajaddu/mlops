@@ -14,8 +14,11 @@ You need your MacBook ready to act as a Server and a Robot.
     *   **Option A (Homebrew)**: `brew install jenkins-lts` then `brew services start jenkins-lts`.
     *   **Option B (Docker)**: `docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts`.
     *   **Access**: Open `http://localhost:8080` in your browser.
-3.  **Install AWS CLI**:
-    *   Follow [AWS CLI Install Guide](https://aws.amazon.com/cli/).
+3.  **Install AWS CLI (Important)**:
+    *   **Step 1**: Go to the [AWS CLI Install Page](https://aws.amazon.com/cli/).
+    *   **Step 2**: Download and run the **macOS PKG installer**.
+    *   **Step 3**: **Restart your Terminal** (close the window and open a new one).
+    *   **Verify**: Type `aws --version`. It should now show a version number instead of "command not found".
     *   **Setup**: Run `aws configure` and enter your Keys (IAM User with ECR/ECS permissions).
 
 ---
