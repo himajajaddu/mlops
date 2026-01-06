@@ -32,10 +32,16 @@ pipeline {
             }
         }
 
+        
         stage('Build Docker Image') {
             steps {
-                sh " /usr/local/bin/docker build -t heart-disease-api -f heart-disease-mlops/Dockerfile ."
-               
+                sh '''
+                export DOCKER_BUILDKIT=0
+                /usr/local/bin/docker build \
+                -t heart-disease-api \
+                -f heart-disease-mlops/Dockerfile \
+                heart-disease-mlops/
+                '''
             }
         }
     }
