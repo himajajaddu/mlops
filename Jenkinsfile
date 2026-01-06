@@ -32,15 +32,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
+                echo "Building Docker image..."
+                # Disable BuildKit for Jenkins (avoids credential issues)
                 export DOCKER_BUILDKIT=0
-                /usr/local/bin/docker build \
-                  -t heart-disease-api \
-                  -f heart-disease-mlops/Dockerfile \
-                  heart-disease-mlops/
+                # Build context is heart-disease-mlops/ so all paths in Dockerfile exist
+                docker build \
+                -f heart-disease-mlops/Dockerfile \
+                -t heart-disease-api \
+                heart-disease-mlops/
                 '''
             }
         }
-    }
 
     post {
         always {
