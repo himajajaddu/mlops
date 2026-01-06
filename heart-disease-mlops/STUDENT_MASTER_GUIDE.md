@@ -71,11 +71,11 @@ We use Python to train models and MLflow to pick the best one.
 #### 4. Setup the "Runner" (AWS ECS)
 *Think of this as the actual computer that runs your app.*
 
-**⚠️ Fix for "Service Linked Role" Error:**
-If you see an error about a "Service Linked Role" while creating the cluster, it means AWS hasn't set up the background permissions for ECS yet. 
-**To fix this:** Run this command in your Terminal:
-`aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com`
-(If it says "already exists," you can ignore it and try creating the cluster again).
+**⚠️ Note on "Service Linked Role" Error:**
+If you see an error saying `Service role name AWSServiceRoleForECS has been taken`, it means **the permissions are already set up correctly!** You don't need to do anything else for this step.
+
+**To continue:**
+Just go back to the AWS console and proceed with creating your cluster. It will now have the permissions it needs.
 
 1. Search for **ECS** (Elastic Container Service).
 2. **Create Cluster**:
