@@ -1,16 +1,13 @@
 pipeline {
     agent any
 
-    environment {
-        MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000'
-    }
-
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
+
         stage('Setup Python Environment') {
             steps {
                 sh '''
@@ -32,15 +29,14 @@ pipeline {
             }
         }
 
-        
         stage('Build Docker Image') {
             steps {
                 sh '''
                 export DOCKER_BUILDKIT=0
                 /usr/local/bin/docker build \
-                -t heart-disease-api \
-                -f heart-disease-mlops/Dockerfile \
-                heart-disease-mlops/
+                  -t heart-disease-api \
+                  -f heart-disease-mlops/Dockerfile \
+                  heart-disease-mlops/
                 '''
             }
         }
