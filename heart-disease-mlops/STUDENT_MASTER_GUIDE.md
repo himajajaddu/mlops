@@ -2,6 +2,7 @@
 
 This guide is for students running everything on their local MacBook. We have removed the web UI and focused entirely on the **ML Pipeline**, **Jenkins**, and **AWS ECS**.
 
+
 ---
 
 ### 💻 Phase 1: Local Environment Setup
