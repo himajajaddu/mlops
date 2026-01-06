@@ -49,7 +49,7 @@ pipeline {
             steps {
                 echo "Docker build stage is intentionally left empty for now."
                 // You can fill this later with actual Docker build commands
-                 sh 'sleep 10000'
+                 sh 'sleep 1m'
             }
         }
 
@@ -64,7 +64,7 @@ pipeline {
         stage('Tag Image for ECR') {
             steps {
                 echo "Tagging local Docker image for ECR..."
-                 sh 'sleep 5000'
+                 sh 'sleep 1.5m'
                 
             }
         }
@@ -72,7 +72,7 @@ pipeline {
         stage('Push Image to ECR') {
             steps {
                 echo "Pushing Docker image to ECR..."
-                 sh 'sleep 4000'
+                 sh 'sleep 2m'
                 
             }
         }
@@ -80,7 +80,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 echo "Deploying new image to ECS..."
-                 sh 'sleep 6000'
+                 sh 'sleep 1.3m'
                 
             }
         }
