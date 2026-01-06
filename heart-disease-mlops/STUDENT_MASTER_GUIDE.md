@@ -70,6 +70,20 @@ As a student, you might wonder why we have so many folders. Here is the "Big Pic
 ### ☁️ Phase 6: Cloud Deployment (Task 7)
 **Goal:** Put your app on the real internet.
 
+**Can I use my local MacBook instead of a Cloud Jenkins?**
+Yes! You can use your MacBook as the "Engine" (Docker) and the "Robot" (Jenkins) to push your app to AWS.
+
+1.  **On your MacBook**:
+    *   **Docker**: Ensure Docker Desktop is running. When you run `docker build` and `docker push`, your MacBook does the heavy lifting of creating the "shipping container."
+    *   **AWS CLI**: Ensure you have run `aws configure`. This gives your MacBook the "Keys" to talk to your AWS account.
+    *   **Jenkins**: If you have Jenkins installed locally, it can run your `Jenkinsfile` steps directly on your machine.
+    
+    **The Steps:**
+    1.  **Login**: `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your-aws-id>.dkr.ecr.us-east-1.amazonaws.com`
+    2.  **Tag**: `docker tag heart-disease-api:latest <your-aws-id>.dkr.ecr.us-east-1.amazonaws.com/heart-disease-api:latest`
+    3.  **Push**: `docker push <your-aws-id>.dkr.ecr.us-east-1.amazonaws.com/heart-disease-api:latest`
+    4.  **Deploy**: `kubectl apply -f k8s/` (This tells the AWS cloud to grab the image you just pushed from your MacBook).
+
 **Where do I mention which Cloud Account to use?**
 You don't "type" your cloud account name into the code. Instead, you "link" your computer or your robot (Jenkins) to your account using **Credentials**.
 
