@@ -4,10 +4,11 @@ pipeline {
     environment {
         AWS_REGION = 'us-east-1'
         ECR_REPOSITORY = 'heart-disease-api'
-        AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
+        // These are names of the secrets you MUST create in Jenkins as "Secret Text"
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000/' // Update with your MLflow server URL
+        AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
+        MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000/' 
     }
 
     stages {
@@ -25,24 +26,15 @@ pipeline {
 
         stage('Train & Register (MLflow)') {
             steps {
-                script {
-                    sh "python3 heart-disease-mlops/src/train_model.py"
-                }
+                sh "python3 heart-disease-mlops/src/train_model.py"
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build & Push') {
             steps {
-                script {
-                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-                    sh "docker build -t ${ECR_REPOSITORY}:latest -f heart-disease-mlops/Dockerfile ."
-                    sh "docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest"
-                }
-            }
-        }
-
-        stage('Push to ECR') {
-            steps {
+                sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                sh "docker build -t ${ECR_REPOSITORY}:latest -f heart-disease-mlops/Dockerfile ."
+                sh "docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest"
                 sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest"
             }
         }
@@ -56,7 +48,9 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            node('built-in') {
+                cleanWs()
+            }
         }
     }
 }
