@@ -34,7 +34,8 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t heart-disease-api -f heart-disease-mlops/Dockerfile .'
+                sh " /usr/local/bin/docker build -t heart-disease-api -f heart-disease-mlops/Dockerfile ."
+               
             }
         }
     }
