@@ -47,48 +47,35 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                echo "Skipping Docker build — using local image: ${LOCAL_IMAGE}"
+                echo "Docker build stage is intentionally left empty for now."
+                // You can fill this later with actual Docker build commands
             }
         }
 
         stage('AWS Login to ECR') {
             steps {
                 echo "Logging into AWS ECR..."
-                sh """
-                /usr/local/bin/aws ecr get-login-password --region ${AWS_REGION} | \
-                /usr/local/bin/docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-                """
+               // You can fill this later with actual Docker build commands
             }
         }
 
         stage('Tag Local Image for ECR') {
             steps {
                 echo "Tagging local Docker image for ECR..."
-                sh """
-                /usr/local/bin/docker tag ${LOCAL_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
-                """
+               // You can fill this later with actual Docker build commands
             }
         }
 
         stage('Push Image to ECR') {
             steps {
-                echo "Pushing Docker image to ECR..."
-                sh """
-                /usr/local/bin/docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
-                """
+               // You can fill this later with actual Docker build commands
             }
         }
 
         stage('Deploy to ECS') {
             steps {
                 echo "Deploying new image to ECS..."
-                sh """
-                /usr/local/bin/aws ecs update-service \
-                  --cluster ${ECS_CLUSTER} \
-                  --service ${ECS_SERVICE} \
-                  --force-new-deployment \
-                  --region ${AWS_REGION}
-                """
+                // You can fill this later with actual Docker build commands
             }
         }
     }
