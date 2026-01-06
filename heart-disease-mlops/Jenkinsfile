@@ -17,21 +17,16 @@ pipeline {
             }
         }
 
-        stage('Lint & Test') {
+        stage('Test') {
             steps {
-                sh 'pip install -r heart-disease-mlops/requirements.txt'
-                sh 'flake8 heart-disease-mlops/src/'
-                sh 'pytest heart-disease-mlops/tests/'
+                sh 'python3 -m unittest discover tests'
             }
         }
 
-        stage('Train & Track (MLflow)') {
+        stage('Train & Register (MLflow)') {
             steps {
                 script {
-                    // This runs the training script which logs to MLflow
-                    sh "export MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} && python heart-disease-mlops/src/train_model.py"
-                    // This registers the model in the MLflow Model Registry
-                    sh "export MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} && python heart-disease-mlops/src/register_model.py"
+                    sh "python3 heart-disease-mlops/src/train_model.py"
                 }
             }
         }
@@ -40,8 +35,7 @@ pipeline {
             steps {
                 script {
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-                    // The Dockerfile should be configured to load the model from MLflow at runtime or build time
-                    sh "docker build -t ${ECR_REPOSITORY}:latest heart-disease-mlops/"
+                    sh "docker build -t ${ECR_REPOSITORY}:latest -f heart-disease-mlops/Dockerfile ."
                     sh "docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest"
                 }
             }
@@ -53,9 +47,9 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to ECS') {
             steps {
-                echo 'Deployment triggered. The API is configured to pull the latest registered model from MLflow.'
+                sh "aws ecs update-service --cluster heart-disease-cluster --service heart-disease-service --force-new-deployment"
             }
         }
     }

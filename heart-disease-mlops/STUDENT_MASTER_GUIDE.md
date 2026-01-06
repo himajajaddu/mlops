@@ -1,157 +1,76 @@
-# 🎓 Student's Master Guide: End-to-End MLOps Assignment
+# 🎓 Student's Master Guide: Local MLOps Pipeline (MacBook)
 
-This guide is designed for students with no prior knowledge of code, deployment, or URLs. Follow these steps in order to complete your Heart Disease Prediction MLOps assignment.
-
----
-
-### 🧱 Phase 1: Accounts & Setup
-You need a "home" for your code and a "cloud" to run it.
-1.  **GitHub** ([github.com](https://github.com)): Sign up. This is where you save your project.
-2.  **AWS** ([aws.amazon.com](https://aws.amazon.com)): Sign up. This is the "Cloud" (Amazon's computers).
+This guide is for students running everything on their local MacBook. We have removed the web UI and focused entirely on the **ML Pipeline**, **Jenkins**, and **AWS ECS**.
 
 ---
 
-### 📂 Understanding Your Project Structure
-As a student, you might wonder why we have so many folders. Here is the "Big Picture":
+### 💻 Phase 1: Local Environment Setup
+You need your MacBook ready to act as a Server and a Robot.
 
-*   **`client/`**: This is the **Frontend**. It is the "Face" of your app (the website you see). It uses React and Tailwind to make things look pretty.
-*   **`server/`**: This is the **Backend**. It is the "Brain" of the web app. it handles the database and tells the frontend what to show.
-*   **`shared/`**: This contains code (like data rules) used by **both** the frontend and the backend. It keeps them synchronized.
-*   **`script/`**: These are helper scripts used during development to build or manage the project.
-*   **`heart-disease-mlops/`**: This is the **Core ML Pipeline**. This is where your actual MLOps assignment lives (Python scripts for training, preprocessing, etc.).
-*   **`tests/`**: This is where your **Quality Control** lives. It contains scripts that check if your code is working correctly before it is deployed.
-
----
-
-### 🧪 Phase 2.5: Automated Testing (New!)
-**Goal:** Make sure your code doesn't break.
-1.  **Test Folder**: Look at the `tests/` folder at the root.
-2.  **Running Tests**: You can run `python -m unittest discover tests` to check your code.
-3.  **CI/CD Integration**: Every time you push to GitHub, our "Main Pipeline" (see `.github/workflows/main.yml`) will now automatically run these tests. If the tests fail, the deployment stops. This is called a **"Failing Fast"** strategy.
+1.  **Install Docker Desktop**: 
+    *   Download from [docker.com](https://www.docker.com/products/docker-desktop).
+    *   **Verify**: Open Terminal and type `docker --version`.
+2.  **Install Jenkins**:
+    *   **Option A (Homebrew)**: `brew install jenkins-lts` then `brew services start jenkins-lts`.
+    *   **Option B (Docker)**: `docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts`.
+    *   **Access**: Open `http://localhost:8080` in your browser.
+3.  **Install AWS CLI**:
+    *   Follow [AWS CLI Install Guide](https://aws.amazon.com/cli/).
+    *   **Setup**: Run `aws configure` and enter your Keys (IAM User with ECR/ECS permissions).
 
 ---
 
-### 📊 Phase 2: Data & Analysis (Task 1)
-**Goal:** Get the heart data and understand it.
-1.  **Download Data**: Run `python heart-disease-mlops/data/download_dataset.py`. This grabs the "Heart Disease UCI Dataset".
-2.  **Clean & Preprocess**: Run `python heart-disease-mlops/src/preprocess.py`. This fixes missing info and prepares the data.
-3.  **EDA (Exploratory Data Analysis)**: Run `python heart-disease-mlops/notebooks/EDA.py`.
-    *   **Result**: Check the `plots/` folder. You will see histograms and heatmaps showing patient health trends.
+### 🤖 Phase 2: ML Pipeline & MLflow (The Core)
+We use Python to train models and MLflow to pick the best one.
+
+1.  **Training**: Run `python heart-disease-mlops/src/train_model.py`.
+2.  **Choosing the Model**: The script uses MLflow to log metrics (Accuracy, F1-Score). It is programmed to only "Register" the model if it beats the previous best.
+3.  **MLflow UI**: Run `mlflow ui` and visit `http://localhost:5000` to see your experiments.
 
 ---
 
-### 🤖 Phase 3: Model Training & Tracking (Tasks 2, 3 & 4)
-**Goal:** Train an AI to predict heart disease and track its performance.
-1.  **Train Models**: Run `python heart-disease-mlops/src/train_model.py`. This trains two models: Logistic Regression and Random Forest.
-2.  **MLflow Tracking**: 
-    *   **What is it?**: A digital lab notebook.
-    *   **Action**: While training, MLflow logs "metrics" (how accurate the model is) and "parameters".
-    *   **View Results**: Run `mlflow ui` in your terminal and visit `http://localhost:5000`. You can see which model performed better.
-3.  **Packaging**: The script automatically saves the best model in a reusable format.
+### 🔄 Phase 3: Local Jenkins Pipeline (Task 5)
+**Goal:** Make your MacBook automatically build and push whenever you save code.
+
+1.  **Connect GitHub to Local Jenkins**:
+    *   Since your MacBook is behind a router, you need **ngrok** to let GitHub "talk" to your local Jenkins.
+    *   Run `ngrok http 8080`. Copy the `https` URL it gives you.
+    *   In GitHub: Go to **Settings** -> **Webhooks** -> **Add Webhook**.
+    *   **Payload URL**: `<your-ngrok-url>/github-webhook/`.
+2.  **Jenkins Job Setup**:
+    *   New Item -> **Pipeline** -> Name it "Heart-Disease-Pipeline".
+    *   **Build Trigger**: Select "GitHub hook trigger for GITScm polling".
+    *   **Pipeline Definition**: Select "Pipeline script from SCM" -> Git -> Enter your Repo URL.
+    *   **Lightweight Checkout**: Checked.
 
 ---
 
-### 🔄 Phase 4: Automation with Jenkins (Task 5)
-**Goal:** Make everything happen automatically when you save code.
-1.  **Setup Jenkins**: Launch a small AWS computer (EC2 instance) and install Jenkins.
-2.  **Create Pipeline**: Connect Jenkins to your GitHub project.
-3.  **The Trigger**: When you "Push" (save) code to GitHub, Jenkins will automatically start testing and training your model.
+### 🐳 Phase 4: Containerization & AWS ECS (Tasks 6 & 7)
+**Goal:** Turn your best model into a container and put it on AWS ECS.
+
+1.  **The Jenkinsfile**: Your project includes a `Jenkinsfile`. It does these steps automatically:
+    *   **Stage: Test**: Runs `python -m unittest discover tests`.
+    *   **Stage: Train**: Runs the ML training and registers the best model.
+    *   **Stage: Build**: Runs `docker build -t heart-disease-api .`.
+    *   **Stage: Push**: Tags and pushes the image to **AWS ECR**.
+    *   **Stage: Deploy**: Updates your **AWS ECS Service** to use the new image.
+
+2.  **AWS Setup**:
+    *   **ECR Repository**: Create a repo named `heart-disease-api`.
+    *   **ECS Cluster**: Create a cluster (Fargate is easiest for students).
+    *   **ECS Task Definition**: Create a definition for your API.
 
 ---
 
-### 🐳 Phase 5: Containerization (Task 6)
-**Goal:** Put your app in a "shipping container" so it runs anywhere.
-1.  **Build Docker**: Run `docker build -t heart-disease-api:v1 .`.
-2.  **Run Locally**: Run `docker run -p 8000:8000 heart-disease-api:v1`.
-3.  **Test**: Visit `http://localhost:8000/docs` to see your live API. You can send patient data (JSON) and get a heart disease prediction back.
+### 🏁 How to Verify
+1.  **Commit Code**: Change something in `train_model.py` and run `git commit` / `git push`.
+2.  **Watch Jenkins**: Go to `http://localhost:8080`. You will see the build start automatically.
+3.  **Check AWS**: Once Jenkins finishes, visit your ECS Service in the AWS Console. You should see a "New Deployment" running your latest code.
 
 ---
 
-### ☁️ Phase 6: Cloud Deployment (Task 7)
-**Goal:** Put your app on the real internet.
-
-**Can I use my local MacBook instead of a Cloud Jenkins?**
-Yes! You can use your MacBook as the "Engine" (Docker) and the "Robot" (Jenkins) to push your app to AWS.
-
-1.  **On your MacBook**:
-    *   **Docker**: Ensure Docker Desktop is running. When you run `docker build` and `docker push`, your MacBook does the heavy lifting of creating the "shipping container."
-    *   **AWS CLI**: Ensure you have run `aws configure`. This gives your MacBook the "Keys" to talk to your AWS account.
-    *   **Jenkins**: If you have Jenkins installed locally, it can run your `Jenkinsfile` steps directly on your machine.
-    
-    **The Steps:**
-    1.  **Login**: `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your-aws-id>.dkr.ecr.us-east-1.amazonaws.com`
-    2.  **Tag**: `docker tag heart-disease-api:latest <your-aws-id>.dkr.ecr.us-east-1.amazonaws.com/heart-disease-api:latest`
-    3.  **Push**: `docker push <your-aws-id>.dkr.ecr.us-east-1.amazonaws.com/heart-disease-api:latest`
-    4.  **Deploy**: `kubectl apply -f k8s/` (This tells the AWS cloud to grab the image you just pushed from your MacBook).
-
-**Where do I mention which Cloud Account to use?**
-You don't "type" your cloud account name into the code. Instead, you "link" your computer or your robot (Jenkins) to your account using **Credentials**.
-
-1.  **On your MacBook**: You need to add your AWS keys to your computer's local credential manager.
-    *   **Step 1**: Open the **Terminal** app (Command + Space, type "Terminal").
-    *   **Step 2**: Type `aws configure` and press Enter. (If it says "command not found," you first need to install the [AWS CLI](https://aws.amazon.com/cli/)).
-    *   **Step 3**: When prompted, paste your **Access Key ID** and press Enter.
-    *   **Step 4**: Paste your **Secret Access Key** and press Enter.
-    *   **Step 5**: For "Default region name," type `us-east-1` (or your preferred region) and press Enter.
-    *   **Step 6**: For "Default output format," just press Enter.
-    
-    **How to get your Access Keys from AWS:**
-    *   **Visit**: Search for **IAM** in your AWS Console.
-    *   **Click**: Go to **Users** and click on your name (or the Jenkins user you created).
-    *   **Action**: Click the **Security credentials** tab.
-    *   **Create**: Scroll down to **Access keys** and click **Create access key**.
-    *   **Choose**: Select "Command Line Interface (CLI)" and click Next.
-    *   **Save**: **Copy both the Access Key and Secret Access Key immediately!** You will never see the Secret Key again after you leave this page. Download the `.csv` file if you want to be safe.
-
-2.  **In Jenkins (The Robot)**:
-    *   **Step 1**: Open your Jenkins dashboard in the browser.
-    *   **Step 2**: Click **Manage Jenkins** -> **Credentials** -> **System** -> **Global credentials**.
-    *   **Step 3**: Click **Add Credentials**.
-    *   **Step 4**: Select **Secret text** as the "Kind".
-    *   **Step 5**: In "Secret", paste your **Access Key ID**. In "ID", type `AWS_ACCESS_KEY_ID`.
-    *   **Step 6**: Repeat for the **Secret Access Key** (set ID to `AWS_SECRET_ACCESS_KEY`).
-    *   **Step 7**: Now your `Jenkinsfile` can use these keys securely by calling `credentials('AWS_ACCESS_KEY_ID')`.
-3.  **The Result**: Because your tools are logged in, when you run `kubectl apply`, the command knows exactly which "City Infrastructure" (your AWS account) it belongs to.
-
-**How Kubernetes and AWS Work Together:**
-Think of **AWS** as the "City Infrastructure" (the land, electricity, and roads) and **Kubernetes** as the "City Planner."
-*   **AWS (Amazon Web Services)**: Provides the actual physical computers (Servers), networking, and storage.
-*   **EKS (Elastic Kubernetes Service)**: This is a special service by AWS that hosts Kubernetes for you. It handles the "Master Node" (the brain of Kubernetes) so you don't have to manage it.
-*   **Integration**: When you ask Kubernetes for a "Load Balancer" in your `service.yaml`, it automatically reaches out to AWS and says, "Hey, I need a public entrance for this app." AWS then creates a physical **Elastic Load Balancer (ELB)** and connects it to your Kubernetes cluster.
-
-**How Kubernetes and Docker Work Together:**
-Think of **Docker** as the "Building Material" and **Kubernetes** as the "Construction Site Manager."
-*   **Docker** creates the "Shipping Container" (Image) that holds your code, libraries, and settings.
-*   **Kubernetes** takes those containers and decides which computer (Server) they should run on, restarts them if they crash, and makes sure they can handle lots of visitors.
-
-**The Workflow:**
-1.  **Pack it (Docker)**: You build your app into a Docker Image.
-2.  **Ship it (Registry)**: You upload that image to a storage place (like AWS ECR).
-3.  **Deploy it (Kubernetes)**: You tell Kubernetes (using the files in the `k8s/` folder) to pull that image from the storage and start running it on the cloud.
-
-**Where is the Public URL configured?**
-The public URL is configured in the **`heart-disease-mlops/k8s/service.yaml`** file. 
-*   Inside this file, you will see `type: LoadBalancer`. 
-*   When you run `kubectl apply -f k8s/`, Kubernetes asks your cloud provider (like AWS) to create a **Load Balancer**. 
-*   Once created, the cloud provider gives you a **Public IP or DNS name** (like `http://a78b...us-east-1.elb.amazonaws.com`). This becomes your public URL.
-
-**Action:**
-1.  **Kubernetes Files**: Use `deployment.yaml` (the instructions for running the app) and `service.yaml` (the instructions for letting people visit the app).
-2.  **Deploy**: Run `kubectl apply -f k8s/`.
-3.  **Result**: Your API is now reachable via a "Load Balancer" (a public URL) that anyone can visit.
-
----
-
-### 📈 Phase 7: Monitoring (Task 8)
-**Goal:** Watch your app to see if it's working well.
-1.  **Logging**: Check the logs of your running API to see every request made by users.
-2.  **Dashboard**: Use tools like Prometheus or simple API metrics to see how many people are using your heart disease predictor.
-
----
-
-### 🏁 Final Deliverable
-1.  **GitHub Link**: Link to your repository.
-2.  **Report**: A 10-page doc explaining your EDA, models, and deployment steps.
-3.  **Video**: A short recording showing you training the model and getting a prediction from the API.
-
-**Need help with a specific step? Just ask!**
+### 📂 File Structure (Cleaned)
+*   **`heart-disease-mlops/`**: All ML code (api, src, data, notebooks).
+*   **`tests/`**: Unit tests for the pipeline.
+*   **`Dockerfile`**: Instructions for making the API container.
+*   **`Jenkinsfile`**: The automation script.
