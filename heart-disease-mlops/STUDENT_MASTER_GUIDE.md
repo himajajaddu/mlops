@@ -56,12 +56,6 @@ We use Python to train models and MLflow to pick the best one.
 ### 🐳 Phase 4: Containerization & AWS ECS (Tasks 6 & 7)
 **Goal:** Turn your best model into a container and put it on AWS ECS.
 
-**Why is there a `k8s/` folder?**
-The `k8s/` (Kubernetes) folder is provided as an **alternative deployment method**.
-*   **ECS (Elastic Container Service)**: This is the simpler, "MacBook-friendly" way we are using. It's like renting a single apartment for your app.
-*   **Kubernetes (k8s)**: This is for "City-Scale" management. If your app had millions of users and hundreds of servers, you would use these files.
-*   **Assignment Tip**: For your assignment, you can choose to deploy to ECS (simpler) or Kubernetes (more advanced). We keep the `k8s/` folder so you have both options ready.
-
 1.  **The Jenkinsfile**: Your project includes a `Jenkinsfile`. It does these steps automatically:
     *   **Stage: Test**: Runs `python -m unittest discover tests`.
     *   **Stage: Train**: Runs the ML training and registers the best model.
