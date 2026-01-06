@@ -121,9 +121,17 @@ Just go back to the AWS console and proceed with creating your cluster. It will 
 ### 🔄 Phase 5: Local Jenkins Pipeline (Task 5)
 **Goal:** Make your MacBook automatically build and push whenever you save code.
 
+**⚠️ Install ngrok (Important):**
+Since your MacBook is behind a router, you need **ngrok** to let GitHub "talk" to your local Jenkins.
+1.  **Download**: Go to [ngrok.com](https://ngrok.com/download) and download the **macOS zip** file.
+2.  **Unzip**: Double-click the downloaded file.
+3.  **Move to Path (Recommended)**: Drag the `ngrok` file into your Terminal and run this command:
+    `sudo mv ~/Downloads/ngrok /usr/local/bin` (this makes it a "known" command).
+4.  **Restart your Terminal** (close the window and open a new one).
+5.  **Verify**: Type `ngrok --version`.
+6.  **Run**: Type `ngrok http 8080`. Copy the `https` URL it gives you.
+
 1.  **Connect GitHub to Local Jenkins**:
-    *   Since your MacBook is behind a router, you need **ngrok** to let GitHub "talk" to your local Jenkins.
-    *   Run `ngrok http 8080`. Copy the `https` URL it gives you.
     *   In GitHub: Go to **Settings** -> **Webhooks** -> **Add Webhook**.
     *   **Payload URL**: `<your-ngrok-url>/github-webhook/`.
 2.  **Jenkins Job Setup**:
