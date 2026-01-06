@@ -20,6 +20,14 @@ You need your MacBook ready to act as a Server and a Robot.
 
 ---
 
+### 🧪 Phase 2.5: Automated Testing
+**Goal:** Make sure your code doesn't break.
+1.  **Test Folder**: Look at the `tests/` folder at the root.
+2.  **Running Tests**: You can run `python -m unittest discover tests` to check your code.
+3.  **Local Jenkins Integration**: Your `Jenkinsfile` is configured to run these tests automatically every time a build is triggered. If the tests fail, the build stops. This is called a **"Failing Fast"** strategy.
+
+---
+
 ### 🤖 Phase 2: ML Pipeline & MLflow (The Core)
 We use Python to train models and MLflow to pick the best one.
 
