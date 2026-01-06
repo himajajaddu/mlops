@@ -45,7 +45,7 @@ pipeline {
             }
         }
 
-        stage('Skip Docker Build') {
+        stage('Docker Build') {
             steps {
                 echo "Skipping Docker build — using local image: ${LOCAL_IMAGE}"
             }
