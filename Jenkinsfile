@@ -55,8 +55,8 @@ pipeline {
             steps {
                 echo "Logging into AWS ECR..."
                 sh """
-                aws ecr get-login-password --region ${AWS_REGION} | \
-                docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                /usr/local/bin/aws ecr get-login-password --region ${AWS_REGION} | \
+                /usr/local/bin/docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
                 """
             }
         }
@@ -65,7 +65,7 @@ pipeline {
             steps {
                 echo "Tagging local Docker image for ECR..."
                 sh """
-                docker tag ${LOCAL_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
+                /usr/local/bin/docker tag ${LOCAL_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
                 """
             }
         }
@@ -74,7 +74,7 @@ pipeline {
             steps {
                 echo "Pushing Docker image to ECR..."
                 sh """
-                docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
+                /usr/local/bin/docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}
                 """
             }
         }
@@ -83,7 +83,7 @@ pipeline {
             steps {
                 echo "Deploying new image to ECS..."
                 sh """
-                aws ecs update-service \
+                /usr/local/bin/aws ecs update-service \
                   --cluster ${ECS_CLUSTER} \
                   --service ${ECS_SERVICE} \
                   --force-new-deployment \
