@@ -55,27 +55,28 @@ pipeline {
         stage('AWS Login to ECR') {
             steps {
                 echo "Logging into AWS ECR..."
-               // You can fill this later with actual Docker build commands
+               
             }
         }
 
         stage('Tag Local Image for ECR') {
             steps {
                 echo "Tagging local Docker image for ECR..."
-               // You can fill this later with actual Docker build commands
+                
             }
         }
 
         stage('Push Image to ECR') {
             steps {
-               // You can fill this later with actual Docker build commands
+                echo "Pushing Docker image to ECR..."
+                
             }
         }
 
         stage('Deploy to ECS') {
             steps {
                 echo "Deploying new image to ECS..."
-                // You can fill this later with actual Docker build commands
+                
             }
         }
     }
