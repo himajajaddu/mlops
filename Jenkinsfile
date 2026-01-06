@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        # Optional: MLflow URI if needed
         MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000'
     }
 
@@ -46,7 +45,7 @@ pipeline {
                 '''
             }
         }
-    }
+    }  // <-- closes stages
 
     post {
         always {
@@ -54,4 +53,4 @@ pipeline {
             cleanWs()
         }
     }
-}
+}  // <-- closes pipeline
