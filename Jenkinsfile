@@ -7,7 +7,7 @@ pipeline {
         AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        MLFLOW_TRACKING_URI = 'http://your-mlflow-server:5000' // Update with your MLflow server URL
+        MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000/' // Update with your MLflow server URL
     }
 
     stages {
